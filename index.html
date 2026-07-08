@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kool Aid Card Vault</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <a class="brand" href="#home" data-view-link="home" aria-label="Kool Aid Card Vault home">
+        <span class="brand-mark">KA</span>
+        <span>
+          <strong>Kool Aid Card Vault</strong>
+          <small>Sports card collection</small>
+        </span>
+      </a>
+
+      <nav class="nav-links" aria-label="Primary navigation">
+        <a href="#home" data-view-link="home">Home</a>
+        <a href="#collection" data-view-link="collection">Collection</a>
+        <a href="#featured" data-view-link="featured">Tradeable</a>
+        <a href="#posts" data-view-link="posts">Updates</a>
+        <a class="owner-link" href="#add-card" data-view-link="add-card">Owner only</a>
+        <a href="https://www.youtube.com/@DCcardCollector-d5q" target="_blank" rel="noopener">YouTube</a>
+      </nav>
+    </header>
+
+    <main>
+      <section class="hero view-section" id="home" data-view="home" aria-labelledby="page-title">
+        <div class="hero-copy">
+          <p class="eyebrow">Personal showcase</p>
+          <h1 id="page-title">Holland Lop Guy Cards Collection</h1>
+          <p>
+            I am trying to get all Kool-Aids that are available to buy.
+          </p>
+          <div class="hero-actions">
+            <a class="button primary" href="#collection" data-view-link="collection">View Cards</a>
+            <a class="button secondary" href="https://www.youtube.com/@DCcardCollector-d5q" target="_blank" rel="noopener">Visit YouTube</a>
+          </div>
+        </div>
+
+        <div class="hero-stack" aria-hidden="true">
+          <article class="display-card display-card-one"></article>
+          <article class="display-card display-card-two"></article>
+          <article class="display-card display-card-three"></article>
+        </div>
+      </section>
+
+      <section class="stats-band view-section" data-view="collection" aria-label="Collection statistics">
+        <div>
+          <strong id="totalCards">0</strong>
+          <span>Total cards</span>
+        </div>
+        <div>
+          <strong id="gradedCards">0</strong>
+          <span>Graded cards</span>
+        </div>
+        <div>
+          <strong id="favoriteCards">0</strong>
+          <span>Favorites</span>
+        </div>
+      </section>
+
+      <section class="toolbar-section view-section" id="collection" data-view="collection" aria-labelledby="collection-title">
+        <div class="section-heading">
+          <p class="eyebrow">Collection</p>
+          <h2 id="collection-title">Favorite Cards</h2>
+        </div>
+
+        <div class="toolbar" aria-label="Collection controls">
+          <label class="search-field">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Player, team, set..." />
+          </label>
+
+          <label>
+            <span>Sport</span>
+            <select id="sportFilter">
+              <option value="all">All sports</option>
+              <option value="Basketball">Basketball</option>
+              <option value="Football">Football</option>
+              <option value="Baseball">Baseball</option>
+              <option value="Soccer">Soccer</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Type</span>
+            <select id="typeFilter">
+              <option value="all">All types</option>
+              <option value="Rookie">Rookie</option>
+              <option value="Autograph">Autograph</option>
+              <option value="Parallel">Parallel</option>
+              <option value="Graded">Graded</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Sort</span>
+            <select id="sortSelect">
+              <option value="favorite">Favorites first</option>
+              <option value="year">Newest year</option>
+              <option value="player">Player A-Z</option>
+              <option value="value">Estimated value</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="card-grid" id="cardGrid" aria-live="polite"></div>
+        <p class="empty-state" id="emptyState" hidden>No favorite cards match those filters.</p>
+      </section>
+
+      <section class="featured-section view-section" id="featured" data-view="featured" aria-labelledby="featured-title">
+        <div class="section-heading">
+          <p class="eyebrow">Tradeable</p>
+          <h2 id="featured-title">Tradeable Cards</h2>
+        </div>
+
+        <div class="featured-card" id="topPullSpotlight">
+          <div class="featured-media" id="topPullMedia" role="img" aria-label="Tradeable card image"></div>
+          <div class="featured-copy">
+            <span class="pill">Tradeable card</span>
+            <h3 id="topPullTitle">No tradeable card selected</h3>
+            <p id="topPullText">Use the Tradeable button on a listing to feature it here.</p>
+            <dl class="details-list">
+              <div><dt>Sport</dt><dd id="topPullSport">None</dd></div>
+              <div><dt>Grade</dt><dd id="topPullGrade">None</dd></div>
+              <div><dt>Set</dt><dd id="topPullSet">None</dd></div>
+            </dl>
+          </div>
+        </div>
+
+        <h3 class="spotlight-subtitle">Tradeable Cards</h3>
+        <div class="favorite-display" id="spotlightDisplay" aria-live="polite"></div>
+      </section>
+
+      <section class="posts-section view-section" id="posts" data-view="posts" aria-labelledby="posts-title">
+        <div class="section-heading">
+          <p class="eyebrow">Updates</p>
+          <h2 id="posts-title">Looking For & Future Videos</h2>
+        </div>
+        <div class="post-grid" id="postGrid" aria-live="polite"></div>
+        <p class="empty-state" id="postEmptyState" hidden>No updates posted yet.</p>
+      </section>
+
+      <section class="add-section view-section" id="add-card" data-view="add-card" aria-labelledby="add-title">
+        <div class="section-heading">
+          <p class="eyebrow">Owner Only</p>
+          <h2 id="add-title">Owner Tools</h2>
+        </div>
+
+        <form class="owner-login" id="ownerLoginForm">
+          <p class="owner-note">This area is only for the website owner. Visitors should use the collection above.</p>
+          <label>
+            <span>Owner passcode</span>
+            <input name="passcode" type="password" autocomplete="current-password" required />
+          </label>
+          <button class="button secondary" type="submit">Unlock</button>
+          <p class="form-message" id="loginMessage" role="status"></p>
+        </form>
+
+        <form class="add-form" id="addCardForm" hidden>
+          <label>
+            <span>Player</span>
+            <input name="player" required placeholder="Shohei Ohtani" />
+          </label>
+          <label>
+            <span>Team</span>
+            <input name="team" required placeholder="Los Angeles Dodgers" />
+          </label>
+          <label>
+            <span>Sport</span>
+            <select name="sport" required>
+              <option>Basketball</option>
+              <option>Football</option>
+              <option>Baseball</option>
+              <option>Soccer</option>
+            </select>
+          </label>
+          <label>
+            <span>Type</span>
+            <select name="type" required>
+              <option>Rookie</option>
+              <option>Autograph</option>
+              <option>Parallel</option>
+              <option>Graded</option>
+            </select>
+          </label>
+          <label>
+            <span>Year</span>
+            <input name="year" required type="number" min="1900" max="2100" value="2024" />
+          </label>
+          <label>
+            <span>Set</span>
+            <input name="set" required placeholder="Topps Chrome" />
+          </label>
+          <label>
+            <span>Grade</span>
+            <input name="grade" placeholder="PSA 10" />
+          </label>
+          <label>
+            <span>Value</span>
+            <input name="value" type="number" min="0" step="1" placeholder="250" />
+          </label>
+          <label>
+            <span>Print Run</span>
+            <input name="printRun" list="printRunOptions" placeholder="/99, 14/25, SSP..." />
+          </label>
+          <label>
+            <span>Color / Variation</span>
+            <input name="variation" list="variationOptions" placeholder="Base, Gold Wave, Zebra..." />
+          </label>
+          <datalist id="printRunOptions">
+            <option value="Not numbered"></option>
+            <option value="1/1"></option>
+            <option value="/5"></option>
+            <option value="/10"></option>
+            <option value="/25"></option>
+            <option value="/49"></option>
+            <option value="/50"></option>
+            <option value="/75"></option>
+            <option value="/99"></option>
+            <option value="/100"></option>
+            <option value="/149"></option>
+            <option value="/199"></option>
+            <option value="/250"></option>
+            <option value="/299"></option>
+            <option value="/499"></option>
+            <option value="Short Print"></option>
+            <option value="Super Short Print"></option>
+          </datalist>
+          <datalist id="variationOptions">
+            <option value="Base"></option>
+            <option value="Silver"></option>
+            <option value="Gold"></option>
+            <option value="Blue"></option>
+            <option value="Red"></option>
+            <option value="Green"></option>
+            <option value="Orange"></option>
+            <option value="Pink"></option>
+            <option value="Purple"></option>
+            <option value="Black"></option>
+            <option value="White"></option>
+            <option value="Refractor"></option>
+            <option value="Prizm"></option>
+            <option value="Holo"></option>
+            <option value="Checkerboard"></option>
+            <option value="Cracked Ice"></option>
+            <option value="Mojo"></option>
+            <option value="Wave"></option>
+            <option value="Disco"></option>
+            <option value="Image Variation"></option>
+            <option value="Color Match"></option>
+          </datalist>
+          <label class="wide">
+            <span>Image URL</span>
+            <input name="image" type="url" placeholder="https://example.com/card-photo.jpg" />
+          </label>
+          <label class="photo-field wide">
+            <span>Take or Upload Card Photos</span>
+            <input id="cardPhotoInput" name="photo" type="file" accept="image/*" capture="environment" multiple />
+          </label>
+          <div class="camera-actions wide">
+            <button class="button secondary" id="openCamera" type="button">Open Camera</button>
+          </div>
+          <div class="camera-panel wide" id="cameraPanel" hidden>
+            <video id="cameraVideo" autoplay playsinline></video>
+            <div class="camera-controls">
+              <button class="button primary" id="capturePhoto" type="button">Take Picture</button>
+              <button class="button secondary" id="closeCamera" type="button">Close Camera</button>
+            </div>
+          </div>
+          <div class="photo-editor wide" id="photoEditor" hidden>
+            <canvas id="photoEditorCanvas"></canvas>
+            <div class="editor-controls">
+              <button class="button secondary" id="rotateLeft" type="button">Rotate Left</button>
+              <button class="button secondary" id="rotateRight" type="button">Rotate Right</button>
+              <label>
+                <span>Brightness</span>
+                <input id="brightnessControl" type="range" min="60" max="150" value="100" />
+              </label>
+              <label>
+                <span>Crop Left</span>
+                <input id="cropXControl" type="range" min="0" max="80" value="0" />
+              </label>
+              <label>
+                <span>Crop Top</span>
+                <input id="cropYControl" type="range" min="0" max="80" value="0" />
+              </label>
+              <label>
+                <span>Crop Width</span>
+                <input id="cropWidthControl" type="range" min="20" max="100" value="100" />
+              </label>
+              <label>
+                <span>Crop Height</span>
+                <input id="cropHeightControl" type="range" min="20" max="100" value="100" />
+              </label>
+              <button class="button primary" id="applyPhotoEdits" type="button">Add Edited Photo</button>
+            </div>
+          </div>
+          <div class="photo-preview wide" id="photoPreview" hidden>
+            <div class="photo-preview-grid" id="photoPreviewGrid" aria-label="Selected card photos"></div>
+            <button class="text-button" id="removePhoto" type="button">Remove all photos</button>
+          </div>
+          <label class="checkbox-row wide">
+            <input name="favorite" type="checkbox" />
+            <span>Mark as favorite</span>
+          </label>
+          <label class="checkbox-row wide">
+            <input name="spotlight" type="checkbox" />
+            <span>Mark as tradeable card</span>
+          </label>
+          <button class="button primary wide" id="saveCardButton" type="submit">Add to Collection</button>
+          <button class="button secondary wide" id="cancelEdit" type="button" hidden>Cancel Edit</button>
+        </form>
+
+        <form class="post-form" id="postForm" hidden>
+          <h3 class="tool-heading">Post an Update</h3>
+          <label>
+            <span>Post Type</span>
+            <select name="type" required>
+              <option value="Looking For">Card I am looking for</option>
+              <option value="Future Video">Future video</option>
+              <option value="Collection Update">Collection update</option>
+            </select>
+          </label>
+          <label>
+            <span>Title</span>
+            <input name="title" required placeholder="Looking for a Tom Brady Kaboom" />
+          </label>
+          <label class="wide">
+            <span>Details</span>
+            <textarea name="body" required rows="4" placeholder="Write what card you want or what video is coming next."></textarea>
+          </label>
+          <button class="button primary wide" id="savePostButton" type="submit">Publish Update</button>
+          <button class="button secondary wide" id="cancelPostEdit" type="button" hidden>Cancel Post Edit</button>
+        </form>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <p>Kool Aid Card Vault</p>
+      <a class="text-button" href="https://www.youtube.com/@DCcardCollector-d5q" target="_blank" rel="noopener">YouTube Channel</a>
+      <button class="text-button" id="lockOwnerTools" type="button" hidden>Lock owner tools</button>
+      <button class="text-button" id="resetCards" type="button" hidden>Reset demo cards</button>
+    </footer>
+
+    <script src="app.js"></script>
+  </body>
+</html>

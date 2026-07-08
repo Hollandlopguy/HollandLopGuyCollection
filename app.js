@@ -388,11 +388,10 @@ function getVisibleCards() {
     .filter((card) => {
       const searchText =
         `${card.player} ${card.team} ${card.sport} ${card.type} ${card.set} ${card.grade} ${card.printRun || ""} ${card.variation || ""}`.toLowerCase();
-      const matchesFavorite = card.favorite;
       const matchesSearch = !query || searchText.includes(query);
       const matchesSport = sport === "all" || card.sport === sport;
       const matchesType = type === "all" || card.type === type;
-      return matchesFavorite && matchesSearch && matchesSport && matchesType;
+      return matchesSearch && matchesSport && matchesType;
     })
     .sort((a, b) => {
       if (sortSelect.value === "favorite") {

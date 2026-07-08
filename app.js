@@ -2,6 +2,11 @@ const storageKey = "koolAidCardVault";
 const postStorageKey = "koolAidOwnerPosts";
 const ownerSessionKey = "koolAidOwnerUnlocked";
 const ownerPasscode = "3.141592KoolAid";
+const supabaseConfig = window.KOOL_AID_SUPABASE || {};
+const supabaseClient =
+  window.supabase && supabaseConfig.url && supabaseConfig.anonKey
+    ? window.supabase.createClient(supabaseConfig.url, supabaseConfig.anonKey)
+    : null;
 
 const demoCards = [
   {
@@ -234,6 +239,70 @@ function saveCards() {
   }
 }
 
+async function loadSupabaseData() {
+  if (!supabaseClient) {
+    return;
+  }
+
+  const [{ data: cardRows, error: cardError }, { data: postRows, error: postError }] =
+    await Promise.all([
+      supabaseClient.from("cards").select("data").order("updated_at", { ascending: false }),
+      supabaseClient.from("posts").select("data").order("created_at", { ascending: false }),
+    ]);
+
+  if (cardError || postError) {
+    window.alert("Supabase is connected, but the site could not load the database yet. Check your tables and policies.");
+    return;
+  }
+
+  if (Array.isArray(cardRows)) {
+    cards = cardRows.map((row) => normalizeCard(row.data));
+    localStorage.setItem(storageKey, JSON.stringify(cards));
+  }
+
+  if (Array.isArray(postRows)) {
+    posts = postRows.map((row) => normalizePost(row.data));
+    localStorage.setItem(postStorageKey, JSON.stringify(posts));
+  }
+
+  renderOwnerState();
+  showView(getViewFromHash());
+}
+
+async function upsertSupabaseCard(card) {
+  if (!supabaseClient) {
+    return true;
+  }
+
+  const { error } = await supabaseClient.from("cards").upsert({
+    id: card.id,
+    data: card,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    window.alert("The card saved in this browser, but Supabase did not accept the update.");
+    return false;
+  }
+
+  return true;
+}
+
+async function deleteSupabaseCard(cardId) {
+  if (!supabaseClient) {
+    return true;
+  }
+
+  const { error } = await supabaseClient.from("cards").delete().eq("id", cardId);
+
+  if (error) {
+    window.alert("The card was removed in this browser, but Supabase did not accept the delete.");
+    return false;
+  }
+
+  return true;
+}
+
 function loadPosts() {
   const savedPosts = localStorage.getItem(postStorageKey);
 
@@ -265,6 +334,40 @@ function savePosts() {
     window.alert("The browser could not save that post.");
     return false;
   }
+}
+
+async function upsertSupabasePost(post) {
+  if (!supabaseClient) {
+    return true;
+  }
+
+  const { error } = await supabaseClient.from("posts").upsert({
+    id: post.id,
+    data: post,
+    updated_at: new Date().toISOString(),
+  });
+
+  if (error) {
+    window.alert("The post saved in this browser, but Supabase did not accept the update.");
+    return false;
+  }
+
+  return true;
+}
+
+async function deleteSupabasePost(postId) {
+  if (!supabaseClient) {
+    return true;
+  }
+
+  const { error } = await supabaseClient.from("posts").delete().eq("id", postId);
+
+  if (error) {
+    window.alert("The post was removed in this browser, but Supabase did not accept the delete.");
+    return false;
+  }
+
+  return true;
 }
 
 function formatCurrency(value) {
@@ -761,7 +864,7 @@ photoPreviewGrid.addEventListener("click", (event) => {
   renderSelectedPhotos();
 });
 
-cardGrid.addEventListener("click", (event) => {
+cardGrid.addEventListener("click", async (event) => {
   if (!ownerUnlocked) {
     return;
   }
@@ -782,6 +885,7 @@ cardGrid.addEventListener("click", (event) => {
       card.id === cardId ? { ...card, spotlight: !card.spotlight } : card,
     );
     saveCards();
+    await upsertSupabaseCard(cards.find((card) => card.id === cardId));
     renderCards();
     return;
   }
@@ -792,6 +896,7 @@ cardGrid.addEventListener("click", (event) => {
       card.id === cardId ? { ...card, favorite: !card.favorite } : card,
     );
     saveCards();
+    await upsertSupabaseCard(cards.find((card) => card.id === cardId));
     renderCards();
     return;
   }
@@ -822,6 +927,7 @@ cardGrid.addEventListener("click", (event) => {
   }
 
   saveCards();
+  await deleteSupabaseCard(cardId);
   renderCards();
 });
 
@@ -859,7 +965,7 @@ cancelEdit.addEventListener("click", () => {
   resetEditMode();
 });
 
-postGrid.addEventListener("click", (event) => {
+postGrid.addEventListener("click", async (event) => {
   if (!ownerUnlocked) {
     return;
   }
@@ -897,11 +1003,12 @@ postGrid.addEventListener("click", (event) => {
 
   posts = posts.filter((entry) => entry.id !== post.id);
   savePosts();
+  await deleteSupabasePost(post.id);
   resetPostForm();
   renderPosts();
 });
 
-postForm.addEventListener("submit", (event) => {
+postForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!ownerUnlocked) {
@@ -929,6 +1036,7 @@ postForm.addEventListener("submit", (event) => {
     return;
   }
 
+  await upsertSupabasePost(post);
   resetPostForm();
   renderPosts();
   history.pushState(null, "", "#posts");
@@ -1015,7 +1123,7 @@ capturePhoto.addEventListener("click", () => {
 
 closeCamera.addEventListener("click", stopCamera);
 
-addCardForm.addEventListener("submit", (event) => {
+addCardForm.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   if (!ownerUnlocked) {
@@ -1067,6 +1175,14 @@ addCardForm.addEventListener("submit", (event) => {
     return;
   }
 
+  const savedToSupabase = await upsertSupabaseCard(newCard);
+
+  if (!savedToSupabase) {
+    cards = previousCards;
+    saveCards();
+    return;
+  }
+
   addCardForm.reset();
   clearSelectedPhotos();
   stopCamera();
@@ -1092,3 +1208,4 @@ resetCards.addEventListener("click", () => {
 
 renderOwnerState();
 showView(getViewFromHash());
+loadSupabaseData();

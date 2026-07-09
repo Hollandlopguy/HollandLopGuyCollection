@@ -176,6 +176,7 @@ let editorRotation = 0;
 let editingCardId = "";
 let editingPostId = "";
 let ownerUnlocked = sessionStorage.getItem(ownerSessionKey) === "true";
+let cardGalleryIndexes = {};
 
 function showView(viewName) {
   viewSections.forEach((section) => {
@@ -416,12 +417,22 @@ function renderCards() {
   cardGrid.innerHTML = visibleCards
     .map((card) => {
       const cardImages = getCardImages(card);
-      const primaryImage = cardImages[0] || fallbackImage(card.sport);
+      const selectedImageIndex = getCardGalleryIndex(card.id, cardImages.length);
+      const primaryImage = cardImages[selectedImageIndex] || fallbackImage(card.sport);
       const extraCount = Math.max(0, cardImages.length - 1);
 
       return `
-        <article class="collection-card">
+        <article class="collection-card" data-card-id="${escapeHtml(card.id)}">
           <div class="card-photo" style="background-image: url(&quot;${escapeHtml(primaryImage)}&quot;)">
+            ${
+              cardImages.length > 1
+                ? `<div class="card-gallery-controls" aria-label="${escapeHtml(card.player)} photos">
+                    <button class="gallery-button" data-gallery-step="-1" type="button" aria-label="Previous photo">Prev</button>
+                    <span>${selectedImageIndex + 1} / ${cardImages.length}</span>
+                    <button class="gallery-button" data-gallery-step="1" type="button" aria-label="Next photo">Next</button>
+                  </div>`
+                : ""
+            }
             <div class="card-badges">
               <span class="pill">${card.type}</span>
               ${extraCount ? `<span class="pill">${extraCount + 1} Photos</span>` : ""}
@@ -431,8 +442,17 @@ function renderCards() {
           ${
             cardImages.length > 1
               ? `<div class="card-thumbs">${cardImages
-                  .slice(0, 4)
-                  .map((image) => `<span style="background-image: url(&quot;${escapeHtml(image)}&quot;)"></span>`)
+                  .map(
+                    (image, index) => `
+                      <button
+                        class="${index === selectedImageIndex ? "active" : ""}"
+                        data-gallery-index="${index}"
+                        style="background-image: url(&quot;${escapeHtml(image)}&quot;)"
+                        type="button"
+                        aria-label="Show photo ${index + 1}"
+                        aria-pressed="${index === selectedImageIndex}"
+                      ></button>`,
+                  )
                   .join("")}</div>`
               : ""
           }
@@ -478,6 +498,35 @@ function getCardImages(card) {
   }
 
   return card.image ? [card.image] : [];
+}
+
+function getCardGalleryIndex(cardId, imageCount) {
+  if (!imageCount) {
+    return 0;
+  }
+
+  const savedIndex = Number(cardGalleryIndexes[cardId]) || 0;
+  return Math.min(Math.max(savedIndex, 0), imageCount - 1);
+}
+
+function setCardGalleryIndex(cardId, nextIndex) {
+  const card = cards.find((entry) => entry.id === cardId);
+
+  if (!card) {
+    return;
+  }
+
+  const images = getCardImages(card);
+
+  if (images.length < 2) {
+    return;
+  }
+
+  cardGalleryIndexes = {
+    ...cardGalleryIndexes,
+    [cardId]: (nextIndex + images.length) % images.length,
+  };
+  renderCards();
 }
 
 function updateStats() {
@@ -864,6 +913,28 @@ photoPreviewGrid.addEventListener("click", (event) => {
 });
 
 cardGrid.addEventListener("click", async (event) => {
+  const galleryStepButton = event.target.closest("[data-gallery-step]");
+  const galleryThumbButton = event.target.closest("[data-gallery-index]");
+
+  if (galleryStepButton || galleryThumbButton) {
+    const cardElement = event.target.closest("[data-card-id]");
+
+    if (!cardElement) {
+      return;
+    }
+
+    if (galleryStepButton) {
+      const card = cards.find((entry) => entry.id === cardElement.dataset.cardId);
+      const imageCount = card ? getCardImages(card).length : 0;
+      const currentIndex = getCardGalleryIndex(cardElement.dataset.cardId, imageCount);
+      setCardGalleryIndex(cardElement.dataset.cardId, currentIndex + Number(galleryStepButton.dataset.galleryStep));
+      return;
+    }
+
+    setCardGalleryIndex(cardElement.dataset.cardId, Number(galleryThumbButton.dataset.galleryIndex));
+    return;
+  }
+
   if (!ownerUnlocked) {
     return;
   }
